@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Билет на электричку</title>
+<style>
+    :root {
+        --bg-dark: #2c2c2e;
+        --bg-light: #f2f2f7;
+        --text-main: #000000;
+        --text-muted: #8e8e93;
+        --accent: #ffcc00;
+    }
+    
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        background-color: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        overflow: hidden;
+    }
+
+    .phone {
+        width: 100%;
+        max-width: 400px;
+        height: 100vh;
+        max-height: 850px;
+        background-color: var(--bg-light);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .status-bar {
+        background-color: var(--bg-dark);
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 20px 8px;
+        font-size: 14px;
+        font-weight: 600;
+        z-index: 10;
+    }
+
+    .header {
+        background-color: var(--bg-dark);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        padding: 10px 16px 16px;
+        font-size: 18px;
+        font-weight: 600;
+        z-index: 10;
+    }
+    
+    .header .back-btn {
+        font-size: 24px;
+        cursor: pointer;
+        margin-right: 16px;
+        font-weight: 400;
+    }
+    
+    .header .title {
+        flex: 1;
+        text-align: center;
+        margin-right: 24px;
+        cursor: pointer;
+        user-select: none;
+        transition: opacity 0.2s;
+    }
+
+    .header .title:active {
+        opacity: 0.6;
+    }
+
+    .ticket-body {
+        background-color: var(--bg-light);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 24px 20px;
+        overflow-y: auto;
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+    }
+
+    .route-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .route-title {
+        font-size: 20px;
+        font-weight: 400;
+        color: var(--text-main);
+    }
+
+    .train-icon {
+        width: 32px;
+        height: 32px;
+        background: #000;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+    }
+
+    .train-icon svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+    }
+
+    .date-block {
+        margin-bottom: 24px;
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    .date-main {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 4px;
+    }
+
+    .date-sub {
+        font-size: 15px;
+        color: var(--text-muted);
+    }
+
+    .barcode-container {
+        width: 100%;
+        height: 140px;
+        background: #fff;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        perspective: 1000px;
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+    }
+
+    canvas#barcodeCanvas {
+        width: 100%;
+        height: 100%;
+        max-width: 320px;
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .barcode-container.flipped canvas#barcodeCanvas {
+        transform: rotateY(90deg);
+    }
+
+    .ticket-details {
+        font-size: 16px;
+        color: var(--text-main);
+        line-height: 1.4;
+        margin-bottom: auto;
+    }
+    
+    .ticket-details p {
+        margin-bottom: 4px;
+    }
+
+    .ticket-footer {
+        display: flex;
+        justify-content: space-between;
+        font-size: 15px;
+        color: var(--text-main);
+        padding-top: 40px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .accordion {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--text-main);
+        cursor: pointer;
+    }
+
+    .accordion svg {
+        width: 16px;
+        height: 16px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+    }
+
+    .bottom-nav {
+        background-color: var(--bg-dark);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 12px 10px calc(12px + env(safe-area-inset-bottom, 0px));
+        z-index: 10;
+    }
+
+    .nav-item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 48px;
+        height: 48px;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .nav-item svg {
+        width: 24px;
+        height: 24px;
+        fill: none;
+        stroke: #8e8e93;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: stroke 0.2s;
+    }
+
+    .nav-item.active svg {
+        stroke: var(--accent);
+    }
+
+    .badge {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        background-color: #ff3b30;
+        color: white;
+        font-size: 11px;
+        font-weight: bold;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Всплывающая подсказка */
+    .hint {
+        position: absolute;
+        top: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.7);
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+        z-index: 100;
+    }
+    .hint.show {
+        opacity: 1;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="phone">
+    <div class="status-bar">
+        <span>18:14 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></span>
+        <span style="display:flex; gap:6px; align-items:center;">
+            <svg width="16" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M2 22h20V2L2 22z"/></svg>
+            LTE
+            <div style="border: 1px solid #fff; border-radius: 4px; padding: 1px 3px; font-size: 10px; display:flex; align-items:center;">88</div>
+        </span>
+    </div>
+
+    <div class="header">
+        <div class="back-btn">‹</div>
+        <!-- Нажатие на заголовок обновляет штрихкод -->
+        <div class="title" id="btnUpdateTitle">Билет</div>
+    </div>
+    
+    <div class="hint" id="hintText">Нажми на "Билет" чтобы обновить код</div>
+
+    <div class="ticket-body">
+        
+        <div class="route-info">
+            <div class="route-title">Старая Деревня - Сестрорецк</div>
+            <div class="train-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 2c-4 0-8 .5-8 4v9.5C4 17.43 5.57 19 7.5 19L6 20.5v.5h12v-.5L16.5 19c1.93 0 3.5-1.57 3.5-3.5V6c0-3.5-4-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm3.5-6H6V6h5v5zm5.5 6c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6h-5V6h5v5z"/></svg>
+            </div>
+        </div>
+
+        <div class="date-block" onclick="changeDate()">
+            <div class="date-main" id="dateMain">Загрузка...</div>
+            <div class="date-sub" id="dateSub">...</div>
+        </div>
+
+        <div class="barcode-container" id="barcodeContainer">
+            <canvas id="barcodeCanvas" width="300" height="120"></canvas>
+        </div>
+
+        <div class="ticket-details">
+            <p>Полный, в одну сторону</p>
+            <p>Билет на электричку стандарт (обычный пригородный поезд)</p>
+        </div>
+
+        <div class="ticket-footer">
+            <div>65 ₽</div>
+            <div id="ticketNumber">Билет № ...</div>
+        </div>
+
+        <div class="accordion">
+            <span>Что делать, если билет не работает</span>
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        </div>
+        <div class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="nav-item active">
+            <svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 10h16M8 6v12"/></svg>
+            <div class="badge">2</div>
+        </div>
+        <div class="nav-item">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="nav-item">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Ключи для хранения в памяти браузера
+    const LS_DATE_MAIN = 'ticket_date_main';
+    const LS_DATE_SUB = 'ticket_date_sub';
+    const LS_NUMBER = 'ticket_number';
+    const LS_BARCODE = 'ticket_barcode_data';
+
+    const barcodeContainer = document.getElementById('barcodeContainer');
+    const titleBtn = document.getElementById('btnUpdateTitle');
+
+    // Инициализация при загрузке страницы
+    function init() {
+        // 1. Проверяем Номер билета
+        let savedNumber = localStorage.getItem(LS_NUMBER);
+        if (!savedNumber) {
+            // Если нет, генерируем новый
+            savedNumber = 'Билет № ' + Math.floor(Math.random() * 9000000000000 + 1000000000000);
+            localStorage.setItem(LS_NUMBER, savedNumber);
+        }
+        document.getElementById('ticketNumber').textContent = savedNumber;
+
+        // 2. Проверяем Дату
+        let savedDateMain = localStorage.getItem(LS_DATE_MAIN);
+        let savedDateSub = localStorage.getItem(LS_DATE_SUB);
+        if (!savedDateMain) {
+            savedDateMain = "14 ноября";
+            savedDateSub = "Действует до 01:00 15 ноября";
+            localStorage.setItem(LS_DATE_MAIN, savedDateMain);
+            localStorage.setItem(LS_DATE_SUB, savedDateSub);
+        }
+        document.getElementById('dateMain').textContent = savedDateMain;
+        document.getElementById('dateSub').textContent = savedDateSub;
+
+        // 3. Проверяем Штрихкод
+        let savedBarcode = localStorage.getItem(LS_BARCODE);
+        if (!savedBarcode) {
+            generateAndSaveNewBarcode();
+        } else {
+            renderBarcode(JSON.parse(savedBarcode));
+        }
+    }
+
+    // Функция генерации и сохранения нового штрихкода
+    function generateAndSaveNewBarcode() {
+        let newData = generateBarcodeData();
+        localStorage.setItem(LS_BARCODE, JSON.stringify(newData));
+        renderBarcode(newData);
+    }
+
+    // Генерация структуры штрихкода (похоже на DataMatrix/PDF417)
+    function generateBarcodeData() {
+        let cols = [];
+        // Создаем 7-8 блоков с разной шириной
+        let numCols = Math.floor(Math.random() * 2) + 7; 
+        
+        for (let c = 0; c < numCols; c++) {
+            let col = {
+                w: Math.floor(Math.random() * 15) + 15, // случайная ширина блока
+                noise: [] // координаты белых полос внутри блока
+            };
+            // Генерируем случайные "вырезы" (белые линии), чтобы создать вид матрицы
+            for (let y = 0; y < 30; y++) {
+                if (Math.random() > 0.65) {
+                    col.noise.push(y);
+                }
+            }
+            cols.push(col);
+        }
+        return cols;
+    }
+
+    // Отрисовка штрихкода на холсте
+    function renderBarcode(cols) {
+        const canvas = document.getElementById('barcodeCanvas');
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+
+        // Белый фон
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+
+        // Черный цвет для полос
+        ctx.fillStyle = '#000000';
+
+        // Сплошные линии по бокам (как на реальных билетах)
+        ctx.fillRect(10, 0, 4, h);
+        ctx.fillRect(w - 14, 0, 4, h);
+
+        let x = 20;
+        cols.forEach(col => {
+            // Рисуем основной черный столбец
+            ctx.fillRect(x, 0, col.w, h);
+            
+            // Рисуем белые линии внутри него для текстуры
+            ctx.fillStyle = '#ffffff';
+            col.noise.forEach(y => {
+                let lineH = Math.floor(Math.random() * 3) + 1; // Высота выреза
+                let yPos = y * (h / 30);
+                ctx.fillRect(x, yPos, col.w, lineH);
+            });
+            
+            // Возвращаем черный цвет
+            ctx.fillStyle = '#000000';
+            x += col.w + 6; // Отступ между столбцами
+        });
+    }
+
+    // --- СОБЫТИЯ ---
+
+    // 1. Нажатие на "Билет" СВЕРХУ (Меняет код)
+    titleBtn.addEventListener('click', () => {
+        // Показываем анимацию переворота
+        barcodeContainer.classList.add('flipped');
+        
+        // Ждем полсекунды, генерируем новый, и возвращаем обратно
+        setTimeout(() => {
+            generateAndSaveNewBarcode();
+            barcodeContainer.classList.remove('flipped');
+        }, 400); 
+    });
+
+    // 2. Нажатие на САМ штрихкод (Просто вертит, не меняет)
+    barcodeContainer.addEventListener('click', () => {
+        barcodeContainer.classList.add('flipped');
+        setTimeout(() => {
+            barcodeContainer.classList.remove('flipped');
+        }, 400); 
+    });
+
+    // 3. Изменение даты
+    function changeDate() {
+        let currentVal = document.getElementById('dateMain').textContent;
+        let newDate = prompt("Введите новую дату:", currentVal);
+        
+        if (newDate && newDate !== currentVal) {
+            document.getElementById('dateMain').textContent = newDate;
+            localStorage.setItem(LS_DATE_MAIN, newDate);
+            
+            // Умный расчет подписи "Действует до..."
+            let parts = newDate.split(' ');
+            let subDate = `Действует до 01:00 15 ноября`; // Дефолт
+            
+            if(parts.length === 2) {
+                let day = parseInt(parts[0]);
+                if(!isNaN(day)) {
+                    subDate = `Действует до 01:00 ${day + 1} ${parts[1]}`;
+                }
+            }
+            
+            document.getElementById('dateSub').textContent = subDate;
+            localStorage.setItem(LS_DATE_SUB, subDate);
+        }
+    }
+
+    // Подсказка при первом заходе
+    setTimeout(() => {
+        const hint = document.getElementById('hintText');
+        hint.classList.add('show');
+        setTimeout(() => hint.classList.remove('show'), 3000);
+    }, 500);
+
+    // Запуск
+    init();
+</script>
+</body>
+</html>

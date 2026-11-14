@@ -30,6 +30,7 @@
         min-height: 100vh;
     }
 
+    /* Контейнер приложения */
     .app {
         width: 100%;
         max-width: 500px;
@@ -41,6 +42,7 @@
         overflow-x: hidden;
     }
 
+    /* Шапка (темно-серая) */
     .header {
         background-color: var(--bg-header);
         color: #fff;
@@ -76,6 +78,7 @@
         opacity: 0.5;
     }
 
+    /* Основной контент билета */
     .content {
         padding: 24px 20px;
         flex: 1;
@@ -83,15 +86,16 @@
         flex-direction: column;
     }
 
+    /* Название маршрута */
     .route {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 20px;
+        margin-bottom: 24px;
     }
 
     .route h1 {
-        font-size: 21px;
+        font-size: 22px;
         font-weight: 400;
         line-height: 1.3;
         color: var(--text-main);
@@ -99,25 +103,25 @@
     }
 
     .train-icon {
-        width: 36px;
-        height: 36px;
+        width: 40px;
+        height: 40px;
         background: #000;
         border-radius: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
         flex-shrink: 0;
-        margin-top: 2px;
     }
 
     .train-icon svg {
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
         fill: #fff;
     }
 
+    /* Дата */
     .date-block {
-        margin-bottom: 24px;
+        margin-bottom: 20px;
         cursor: pointer;
     }
 
@@ -125,7 +129,7 @@
         font-size: 22px;
         font-weight: 600;
         color: var(--text-main);
-        margin-bottom: 2px;
+        margin-bottom: 4px;
     }
 
     .date-sub {
@@ -133,35 +137,56 @@
         color: var(--text-muted);
     }
 
-    /* Контейнер для кода (подогнан под пропорции 2D-кода) */
+    /* Контейнер для кода */
     .code-container {
         width: 100%;
         background: #ffffff;
-        border-radius: 6px;
+        border-radius: 8px;
         padding: 15px;
         margin-bottom: 24px;
         display: flex;
+        flex-direction: column;
+        gap: 8px;
         justify-content: center;
         align-items: center;
         perspective: 1000px;
         cursor: pointer;
-        height: 150px; /* Увеличенная высота для солидности */
-        border: 1px solid #e5e5ea;
+        transform-style: preserve-3d;
     }
 
-    canvas {
+    #qrCode {
         width: 100%;
-        height: 100%;
+        max-width: 360px;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        perspective: 900px;
+    }
+
+    #qrCode canvas {
+        transform-style: preserve-3d;
+        backface-visibility: visible;
+        width: 100% !important;
+        height: 140px !important;
         display: block;
-        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        image-rendering: pixelated;
     }
 
-    .code-container.flipped canvas {
-        transform: rotateY(90deg);
+    /* Горизонтальное вращение кода */
+    @keyframes spinHorizontal {
+        from { transform: rotateY(0deg); }
+        to   { transform: rotateY(360deg); }
     }
 
+    .code-container.spinning canvas {
+        animation: spinHorizontal 0.6s ease-in-out;
+    }
+
+    /* Описание */
     .details {
-        font-size: 16px;
+        font-size: 17px;
         line-height: 1.4;
         color: var(--text-main);
         margin-bottom: auto;
@@ -171,16 +196,18 @@
         margin-bottom: 4px;
     }
 
+    /* Футер (цена и номер) */
     .footer {
         margin-top: 30px;
         padding-bottom: 16px;
         border-bottom: 1px solid rgba(0,0,0,0.1);
         display: flex;
         justify-content: space-between;
-        font-size: 15px;
+        font-size: 16px;
         color: var(--text-main);
     }
 
+    /* Аккордеон */
     .accordion {
         padding: 16px 0 24px;
         display: flex;
@@ -200,6 +227,7 @@
         stroke-width: 2;
     }
 
+    /* Нижнее меню (темно-серое) */
     .bottom-nav {
         background-color: var(--bg-header);
         display: flex;
@@ -221,8 +249,8 @@
     }
 
     .nav-btn svg {
-        width: 24px;
-        height: 24px;
+        width: 26px;
+        height: 26px;
         fill: none;
         stroke: #8e8e93;
         stroke-width: 2;
@@ -236,38 +264,18 @@
 
     .badge {
         position: absolute;
-        top: 6px;
+        top: 4px;
         right: 4px;
         background-color: var(--badge);
         color: white;
         font-size: 11px;
         font-weight: 600;
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
         border-radius: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
-    }
-
-    .hint {
-        position: absolute;
-        top: 70px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0,0,0,0.8);
-        color: #fff;
-        padding: 8px 14px;
-        border-radius: 20px;
-        font-size: 13px;
-        white-space: nowrap;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.3s;
-        z-index: 100;
-    }
-    .hint.show {
-        opacity: 1;
     }
 
 </style>
@@ -275,17 +283,18 @@
 <body>
 
 <div class="app">
+    <!-- Шапка -->
     <div class="header">
         <div class="back">‹</div>
+        <!-- Нажатие на "Билет" генерирует новый код -->
         <div class="title" id="btnUpdateCode">Билет</div>
     </div>
 
-    <div class="hint" id="hint">Нажми на "Билет" чтобы обновить</div>
-
+    <!-- Основной контент -->
     <div class="content">
         
         <div class="route">
-            <h1>Старая Деревня - Сестрорецк</h1>
+            <h1>Старая Деревня -<br>Сестрорецк</h1>
             <div class="train-icon">
                 <svg viewBox="0 0 24 24"><path d="M12 2c-4 0-8 .5-8 4v9.5C4 17.43 5.57 19 7.5 19L6 20.5v.5h12v-.5L16.5 19c1.93 0 3.5-1.57 3.5-3.5V6c0-3.5-4-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm3.5-6H6V6h5v5zm5.5 6c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6h-5V6h5v5z"/></svg>
             </div>
@@ -296,9 +305,8 @@
             <div class="date-sub" id="dateSub">...</div>
         </div>
 
-        <!-- Блок кода -->
         <div class="code-container" id="codeContainer">
-            <canvas id="barcodeCanvas"></canvas>
+            <div id="qrCode" aria-label="Билетный код"></div>
         </div>
 
         <div class="details">
@@ -318,6 +326,7 @@
 
     </div>
 
+    <!-- Нижнее меню -->
     <div class="bottom-nav">
         <div class="nav-btn">
             <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
@@ -339,157 +348,145 @@
 </div>
 
 <script>
-    const LS_DATE_MAIN = 'ticket_date_main';
-    const LS_DATE_SUB = 'ticket_date_sub';
-    const LS_NUMBER = 'ticket_number';
-    const LS_MATRIX = 'ticket_matrix_data';
-    
+    const LS_DATE_MAIN = 'ticket_date_main_v2';
+    const LS_DATE_SUB = 'ticket_date_sub_v2';
+    const LS_NUMBER = 'ticket_number_v2';
+    const LS_QR_TOKEN = 'ticket_qr_token_v2';
+
     const codeContainer = document.getElementById('codeContainer');
     const titleBtn = document.getElementById('btnUpdateCode');
+    let isSpinning = false;
 
-    // --- ГЕНЕРАЦИЯ МАТРИЦЫ ---
-    function generateMatrix() {
-        // Матрица 6 колонок на 25 строк (пикселей в высоту)
-        let matrix = [];
-        for(let c = 0; c < 6; c++) {
-            let col = [];
-            for(let r = 0; r < 25; r++) {
-                // 45% шанс, что пиксель будет черным
-                col.push(Math.random() < 0.45 ? 1 : 0); 
-            }
-            matrix.push(col);
+    // Декоративный код в вытянутом формате, похожем по композиции
+    // на билетный 2D-код.
+    function randomToken() {
+        const bytes = new Uint8Array(16);
+        if (window.crypto && crypto.getRandomValues) {
+            crypto.getRandomValues(bytes);
+        } else {
+            for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
         }
-        return matrix;
+        return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
     }
 
-    // --- ОТРИСОВКА (КАК НА ФОТО) ---
-    function renderCode(matrix) {
-        const canvas = document.getElementById('barcodeCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Ретина-дисплей (четкость)
-        const dpr = window.devicePixelRatio || 1;
-        const rect = canvas.getBoundingClientRect();
-        const width = rect.width || 300;
-        const height = rect.height || 150;
-
+    function renderQR(token) {
+        const target = document.getElementById('qrCode');
+        target.innerHTML = '';
+        const canvas = document.createElement('canvas');
+        const width = 360, height = 140, dpr = window.devicePixelRatio || 1;
         canvas.width = width * dpr;
         canvas.height = height * dpr;
+        canvas.style.width = '100%';
+        canvas.style.height = '140px';
+        target.appendChild(canvas);
+
+        const ctx = canvas.getContext('2d');
         ctx.scale(dpr, dpr);
-
-        // Белый фон
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#fff';
         ctx.fillRect(0, 0, width, height);
-        ctx.fillStyle = '#000000';
+        ctx.fillStyle = '#111';
 
-        // Вычисляем отступы и размеры зон
-        let leftGuardW = width * 0.08; // 8% ширины на левую рамку
-        let rightGuardW = width * 0.08; // 8% ширины на правую рамку
-        let middleX = leftGuardW + 10;
-        let middleW = width - rightGuardW - middleX - 10;
-        
-        let yPad = 10; // Отступ сверху/снизу
-        let drawH = height - yPad * 2;
+        // Боковые направляющие.
+        ctx.fillRect(5, 4, 11, 132);
+        [24, 30, 37].forEach(x => ctx.fillRect(x, 4, 2, 132));
+        ctx.fillRect(344, 4, 11, 132);
+        [323, 330, 336].forEach(x => ctx.fillRect(x, 4, 2, 132));
 
-        // 1. ЛЕВАЯ РАМКА (Толстая полоса + 2 тонкие)
-        ctx.fillRect(5, 0, leftGuardW, height); // Толстая
-        ctx.fillRect(leftGuardW + 8, 0, 2, height); // Тонкая
-        ctx.fillRect(leftGuardW + 15, 0, 2, height); // Тонкая
+        // Прямоугольная матрица.
+        let seed = 2166136261;
+        for (const ch of token) {
+            seed ^= ch.charCodeAt(0);
+            seed = Math.imul(seed, 16777619);
+        }
+        function rand() {
+            seed += 0x6D2B79F5;
+            let t = seed;
+            t = Math.imul(t ^ (t >>> 15), t | 1);
+            t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        }
 
-        // 2. ПРАВАЯ РАМКА (Толстая полоса + 2 тонкие)
-        let rightStart = width - rightGuardW - 5;
-        ctx.fillRect(rightStart, 0, leftGuardW, height); // Толстая
-        ctx.fillRect(rightStart - 8, 0, 2, height); // Тонкая
-        ctx.fillRect(rightStart - 15, 0, 2, height); // Тонкая
-
-        // 3. ЦЕНТРАЛЬНАЯ МАТРИЦА (6 колонок)
-        let numCols = matrix.length;
-        let colSpacing = middleW / numCols;
-        let blockSize = 3; // Размер одного "пикселя"
-
-        for (let c = 0; c < numCols; c++) {
-            let colX = middleX + (c * colSpacing);
-            
-            // Сплошная линия слева от каждой колонки (как на фото)
-            ctx.fillRect(colX, yPad, 2, drawH);
-
-            // Рисуем пиксели внутри колонки
-            let col = matrix[c];
-            let numRows = col.length;
-            let rowSpacing = drawH / numRows;
-
-            for (let r = 0; r < numRows; r++) {
-                if (col[r] === 1) {
-                    let blockY = yPad + (r * rowSpacing);
-                    // Рисуем прямоугольник, чуть меньше ячейки, чтобы был зазор
-                    ctx.fillRect(colX + 4, blockY, colSpacing - 6, rowSpacing - 1);
+        const x0 = 48, y0 = 5, cols = 88, rows = 34;
+        const cellW = 3.0, cellH = 3.82;
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const density = (c % 17 === 0) ? 0.36 : 0.53;
+                if (rand() < density) {
+                    ctx.fillRect(
+                        x0 + c * cellW,
+                        y0 + r * cellH,
+                        Math.ceil(cellW * (rand() < 0.14 ? 1.5 : 1)),
+                        Math.ceil(cellH * (rand() < 0.18 ? 1.5 : 1))
+                    );
                 }
             }
         }
+
+        // Узкие вертикальные разделители между секциями.
+        [101, 154, 207, 260].forEach(x => ctx.fillRect(x, 3, 2, 134));
     }
 
-    // --- ЛОГИКА ---
+    function generateAndSaveNewCode() {
+        const token = randomToken();
+        localStorage.setItem(LS_QR_TOKEN, token);
+        renderQR(token);
+        const number = 'Билет № ' + token.slice(0, 10);
+        localStorage.setItem(LS_NUMBER, number);
+        document.getElementById('ticketNumber').textContent = number;
+    }
+
     function init() {
-        // Номер
         let savedNumber = localStorage.getItem(LS_NUMBER);
         if (!savedNumber) {
-            savedNumber = 'Билет № ' + Math.floor(Math.random() * 9000000000000 + 1000000000000);
+            savedNumber = 'Билет № ' + randomToken().slice(0, 10);
             localStorage.setItem(LS_NUMBER, savedNumber);
         }
         document.getElementById('ticketNumber').textContent = savedNumber;
 
-        // Дата
         let savedDateMain = localStorage.getItem(LS_DATE_MAIN);
         let savedDateSub = localStorage.getItem(LS_DATE_SUB);
         if (!savedDateMain) {
-            savedDateMain = "14 ноября";
-            savedDateSub = "Действует до 01:00 15 ноября";
+            const now = new Date();
+            savedDateMain = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            savedDateSub = 'Действует до 01:00 ' + tomorrow.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
             localStorage.setItem(LS_DATE_MAIN, savedDateMain);
             localStorage.setItem(LS_DATE_SUB, savedDateSub);
         }
         document.getElementById('dateMain').textContent = savedDateMain;
         document.getElementById('dateSub').textContent = savedDateSub;
 
-        // Код
-        let savedMatrix = localStorage.getItem(LS_MATRIX);
-        if (!savedMatrix) {
-            let newMatrix = generateMatrix();
-            localStorage.setItem(LS_MATRIX, JSON.stringify(newMatrix));
-            renderCode(newMatrix);
-        } else {
-            renderCode(JSON.parse(savedMatrix));
-        }
+        const savedToken = localStorage.getItem(LS_QR_TOKEN);
+        if (savedToken) renderQR(savedToken);
+        else generateAndSaveNewCode();
+    }
+
+    // --- Горизонтальное вращение кода ---
+    function spinCode() {
+        if (isSpinning) return;
+        isSpinning = true;
+        codeContainer.classList.add('spinning');
+        codeContainer.addEventListener('animationend', () => {
+            codeContainer.classList.remove('spinning');
+            isSpinning = false;
+        }, { once: true });
     }
 
     // --- СОБЫТИЯ ---
-    
-    // Клик на "Билет" (Смена кода)
+
+    // Нажатие на заголовок: вращение + новый код.
     titleBtn.addEventListener('click', () => {
-        codeContainer.classList.add('flipped');
-        setTimeout(() => {
-            // Меняем номер
-            let newNumber = 'Билет № ' + Math.floor(Math.random() * 9000000000000 + 1000000000000);
-            localStorage.setItem(LS_NUMBER, newNumber);
-            document.getElementById('ticketNumber').textContent = newNumber;
-            
-            // Меняем матрицу
-            let newMatrix = generateMatrix();
-            localStorage.setItem(LS_MATRIX, JSON.stringify(newMatrix));
-            renderCode(newMatrix);
-            
-            codeContainer.classList.remove('flipped');
-        }, 400); 
+        spinCode();
+        setTimeout(generateAndSaveNewCode, 300);
     });
 
-    // Клик на сам код (Анимация)
-    codeContainer.addEventListener('click', () => {
-        codeContainer.classList.add('flipped');
-        setTimeout(() => {
-            codeContainer.classList.remove('flipped');
-        }, 400); 
+    // Нажатие непосредственно на код запускает горизонтальное вращение.
+    document.getElementById('qrCode').addEventListener('click', () => {
+        spinCode();
     });
 
-    // Смена даты
+    // 3. Изменение даты
     function changeDate() {
         let currentVal = document.getElementById('dateMain').textContent;
         let newDate = prompt("Введите новую дату:", currentVal);
@@ -498,12 +495,13 @@
             document.getElementById('dateMain').textContent = newDate;
             localStorage.setItem(LS_DATE_MAIN, newDate);
             
+            // Расчет "Действует до..."
             let parts = newDate.split(' ');
             let subDate = `Действует до 01:00 15 ноября`;
             
-            if(parts.length === 2) {
+            if (parts.length === 2) {
                 let day = parseInt(parts[0]);
-                if(!isNaN(day)) {
+                if (!isNaN(day)) {
                     subDate = `Действует до 01:00 ${day + 1} ${parts[1]}`;
                 }
             }
@@ -513,22 +511,8 @@
         }
     }
 
-    // Подсказка
-    setTimeout(() => {
-        const hint = document.getElementById('hint');
-        if (hint) {
-            hint.classList.add('show');
-            setTimeout(() => hint.classList.remove('show'), 3000);
-        }
-    }, 500);
-
     // Запуск
     init();
-
-    window.addEventListener('resize', () => {
-        let savedMatrix = localStorage.getItem(LS_MATRIX);
-        if(savedMatrix) renderCode(JSON.parse(savedMatrix));
-    });
 </script>
 </body>
 </html>

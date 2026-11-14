@@ -41,7 +41,6 @@
         overflow-x: hidden;
     }
 
-    /* Шапка */
     .header {
         background-color: var(--bg-header);
         color: #fff;
@@ -70,14 +69,13 @@
         text-align: center;
         cursor: pointer;
         transition: opacity 0.2s;
-        margin-right: 30px; /* Центрирование */
+        margin-right: 30px;
     }
 
     .header .title:active {
         opacity: 0.5;
     }
 
-    /* Контент */
     .content {
         padding: 24px 20px;
         flex: 1;
@@ -85,7 +83,6 @@
         flex-direction: column;
     }
 
-    /* Маршрут */
     .route {
         display: flex;
         justify-content: space-between;
@@ -119,7 +116,6 @@
         fill: #fff;
     }
 
-    /* Дата */
     .date-block {
         margin-bottom: 24px;
         cursor: pointer;
@@ -137,19 +133,20 @@
         color: var(--text-muted);
     }
 
-    /* Контейнер для кода */
+    /* Контейнер для кода (подогнан под пропорции 2D-кода) */
     .code-container {
         width: 100%;
         background: #ffffff;
         border-radius: 6px;
-        padding: 10px 15px;
+        padding: 15px;
         margin-bottom: 24px;
         display: flex;
         justify-content: center;
         align-items: center;
         perspective: 1000px;
         cursor: pointer;
-        height: 140px;
+        height: 150px; /* Увеличенная высота для солидности */
+        border: 1px solid #e5e5ea;
     }
 
     canvas {
@@ -163,7 +160,6 @@
         transform: rotateY(90deg);
     }
 
-    /* Описание */
     .details {
         font-size: 16px;
         line-height: 1.4;
@@ -175,7 +171,6 @@
         margin-bottom: 4px;
     }
 
-    /* Футер */
     .footer {
         margin-top: 30px;
         padding-bottom: 16px;
@@ -186,7 +181,6 @@
         color: var(--text-main);
     }
 
-    /* Аккордеон */
     .accordion {
         padding: 16px 0 24px;
         display: flex;
@@ -206,7 +200,6 @@
         stroke-width: 2;
     }
 
-    /* Нижнее меню */
     .bottom-nav {
         background-color: var(--bg-header);
         display: flex;
@@ -257,7 +250,6 @@
         align-items: center;
     }
 
-    /* Подсказка */
     .hint {
         position: absolute;
         top: 70px;
@@ -288,7 +280,7 @@
         <div class="title" id="btnUpdateCode">Билет</div>
     </div>
 
-    <div class="hint" id="hint">Нажми на "Билет" чтобы обновить штрихкод</div>
+    <div class="hint" id="hint">Нажми на "Билет" чтобы обновить</div>
 
     <div class="content">
         
@@ -304,6 +296,7 @@
             <div class="date-sub" id="dateSub">...</div>
         </div>
 
+        <!-- Блок кода -->
         <div class="code-container" id="codeContainer">
             <canvas id="barcodeCanvas"></canvas>
         </div>
@@ -349,42 +342,36 @@
     const LS_DATE_MAIN = 'ticket_date_main';
     const LS_DATE_SUB = 'ticket_date_sub';
     const LS_NUMBER = 'ticket_number';
-    const LS_PATTERN = 'ticket_pattern_data';
+    const LS_MATRIX = 'ticket_matrix_data';
     
     const codeContainer = document.getElementById('codeContainer');
     const titleBtn = document.getElementById('btnUpdateCode');
 
-    // --- ГЕНЕРАЦИЯ УЗОРА (ИМИТАЦИЯ PDF417) ---
-    function generatePattern() {
-        // Создаем 7 вертикальных блоков
-        let columns = [];
-        const numCols = 7;
-        
-        for (let i = 0; i < numCols; i++) {
-            let blocks = [];
-            let y = 0;
-            // Заполняем колонку блоками сверху вниз
-            while (y < 100) {
-                let blockH = Math.random() * 8 + 4; // Высота блока
-                let gap = Math.random() * 5;        // Отступ
-                blocks.push({ y: y, h: blockH });
-                y += blockH + gap;
+    // --- ГЕНЕРАЦИЯ МАТРИЦЫ ---
+    function generateMatrix() {
+        // Матрица 6 колонок на 25 строк (пикселей в высоту)
+        let matrix = [];
+        for(let c = 0; c < 6; c++) {
+            let col = [];
+            for(let r = 0; r < 25; r++) {
+                // 45% шанс, что пиксель будет черным
+                col.push(Math.random() < 0.45 ? 1 : 0); 
             }
-            columns.push(blocks);
+            matrix.push(col);
         }
-        return columns;
+        return matrix;
     }
 
-    // --- ОТРИСОВКА ---
-    function renderBarcode(columns) {
+    // --- ОТРИСОВКА (КАК НА ФОТО) ---
+    function renderCode(matrix) {
         const canvas = document.getElementById('barcodeCanvas');
         const ctx = canvas.getContext('2d');
         
-        // Поддержка высокого разрешения (Retina)
+        // Ретина-дисплей (четкость)
         const dpr = window.devicePixelRatio || 1;
         const rect = canvas.getBoundingClientRect();
         const width = rect.width || 300;
-        const height = rect.height || 140;
+        const height = rect.height || 150;
 
         canvas.width = width * dpr;
         canvas.height = height * dpr;
@@ -393,50 +380,57 @@
         // Белый фон
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, width, height);
-
-        // Черный цвет
         ctx.fillStyle = '#000000';
 
-        // 1. Рисуем сплошные линии по краям (как на билетах)
-        let borderW = 3;
-        ctx.fillRect(5, 0, borderW, height);
-        ctx.fillRect(10, 0, 1, height); // Тонкая линия рядом
+        // Вычисляем отступы и размеры зон
+        let leftGuardW = width * 0.08; // 8% ширины на левую рамку
+        let rightGuardW = width * 0.08; // 8% ширины на правую рамку
+        let middleX = leftGuardW + 10;
+        let middleW = width - rightGuardW - middleX - 10;
         
-        ctx.fillRect(width - 8, 0, borderW, height);
-        ctx.fillRect(width - 11, 0, 1, height);
+        let yPad = 10; // Отступ сверху/снизу
+        let drawH = height - yPad * 2;
 
-        // 2. Рисуем матрицу по центру
-        let startX = 18;
-        let endX = width - 18;
-        let availableW = endX - startX;
-        
-        // Равномерно распределяем колонки
-        let colW = availableW / columns.length;
-        let yPad = 4; // Отступ сверху и снизу
-        let usableH = height - (yPad * 2);
+        // 1. ЛЕВАЯ РАМКА (Толстая полоса + 2 тонкие)
+        ctx.fillRect(5, 0, leftGuardW, height); // Толстая
+        ctx.fillRect(leftGuardW + 8, 0, 2, height); // Тонкая
+        ctx.fillRect(leftGuardW + 15, 0, 2, height); // Тонкая
 
-        columns.forEach((colBlocks, index) => {
-            let xPos = startX + (index * colW);
+        // 2. ПРАВАЯ РАМКА (Толстая полоса + 2 тонкие)
+        let rightStart = width - rightGuardW - 5;
+        ctx.fillRect(rightStart, 0, leftGuardW, height); // Толстая
+        ctx.fillRect(rightStart - 8, 0, 2, height); // Тонкая
+        ctx.fillRect(rightStart - 15, 0, 2, height); // Тонкая
+
+        // 3. ЦЕНТРАЛЬНАЯ МАТРИЦА (6 колонок)
+        let numCols = matrix.length;
+        let colSpacing = middleW / numCols;
+        let blockSize = 3; // Размер одного "пикселя"
+
+        for (let c = 0; c < numCols; c++) {
+            let colX = middleX + (c * colSpacing);
             
-            colBlocks.forEach(b => {
-                let blockY = yPad + (b.y / 100) * usableH;
-                let blockH = (b.h / 100) * usableH;
-                
-                // Небольшой зазор между колонками (1px), чтобы было похоже на полосы
-                let drawW = colW - 1;
-                
-                if (blockY + blockH > yPad + usableH) {
-                    blockH = (yPad + usableH) - blockY;
+            // Сплошная линия слева от каждой колонки (как на фото)
+            ctx.fillRect(colX, yPad, 2, drawH);
+
+            // Рисуем пиксели внутри колонки
+            let col = matrix[c];
+            let numRows = col.length;
+            let rowSpacing = drawH / numRows;
+
+            for (let r = 0; r < numRows; r++) {
+                if (col[r] === 1) {
+                    let blockY = yPad + (r * rowSpacing);
+                    // Рисуем прямоугольник, чуть меньше ячейки, чтобы был зазор
+                    ctx.fillRect(colX + 4, blockY, colSpacing - 6, rowSpacing - 1);
                 }
-                
-                ctx.fillRect(xPos, blockY, drawW, blockH);
-            });
-        });
+            }
+        }
     }
 
-    // --- ЛОГИКА СОХРАНЕНИЯ ---
+    // --- ЛОГИКА ---
     function init() {
-        // 1. Номер
+        // Номер
         let savedNumber = localStorage.getItem(LS_NUMBER);
         if (!savedNumber) {
             savedNumber = 'Билет № ' + Math.floor(Math.random() * 9000000000000 + 1000000000000);
@@ -444,7 +438,7 @@
         }
         document.getElementById('ticketNumber').textContent = savedNumber;
 
-        // 2. Дата
+        // Дата
         let savedDateMain = localStorage.getItem(LS_DATE_MAIN);
         let savedDateSub = localStorage.getItem(LS_DATE_SUB);
         if (!savedDateMain) {
@@ -456,39 +450,38 @@
         document.getElementById('dateMain').textContent = savedDateMain;
         document.getElementById('dateSub').textContent = savedDateSub;
 
-        // 3. Штрихкод (паттерн)
-        let savedPattern = localStorage.getItem(LS_PATTERN);
-        if (!savedPattern) {
-            let newPattern = generatePattern();
-            localStorage.setItem(LS_PATTERN, JSON.stringify(newPattern));
-            renderBarcode(newPattern);
+        // Код
+        let savedMatrix = localStorage.getItem(LS_MATRIX);
+        if (!savedMatrix) {
+            let newMatrix = generateMatrix();
+            localStorage.setItem(LS_MATRIX, JSON.stringify(newMatrix));
+            renderCode(newMatrix);
         } else {
-            renderBarcode(JSON.parse(savedPattern));
+            renderCode(JSON.parse(savedMatrix));
         }
     }
 
     // --- СОБЫТИЯ ---
-
+    
     // Клик на "Билет" (Смена кода)
     titleBtn.addEventListener('click', () => {
         codeContainer.classList.add('flipped');
-        
         setTimeout(() => {
-            // Новый номер
+            // Меняем номер
             let newNumber = 'Билет № ' + Math.floor(Math.random() * 9000000000000 + 1000000000000);
             localStorage.setItem(LS_NUMBER, newNumber);
             document.getElementById('ticketNumber').textContent = newNumber;
             
-            // Новый штрихкод
-            let newPattern = generatePattern();
-            localStorage.setItem(LS_PATTERN, JSON.stringify(newPattern));
-            renderBarcode(newPattern);
+            // Меняем матрицу
+            let newMatrix = generateMatrix();
+            localStorage.setItem(LS_MATRIX, JSON.stringify(newMatrix));
+            renderCode(newMatrix);
             
             codeContainer.classList.remove('flipped');
         }, 400); 
     });
 
-    // Клик на сам штрихкод (Просто анимация)
+    // Клик на сам код (Анимация)
     codeContainer.addEventListener('click', () => {
         codeContainer.classList.add('flipped');
         setTimeout(() => {
@@ -532,12 +525,10 @@
     // Запуск
     init();
 
-    // Перерисовка при изменении размера экрана
     window.addEventListener('resize', () => {
-        let savedPattern = localStorage.getItem(LS_PATTERN);
-        if(savedPattern) renderBarcode(JSON.parse(savedPattern));
+        let savedMatrix = localStorage.getItem(LS_MATRIX);
+        if(savedMatrix) renderCode(JSON.parse(savedMatrix));
     });
-
 </script>
 </body>
 </html>

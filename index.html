@@ -91,7 +91,7 @@
         flex-direction: column;
     }
 
-    /* Маршрут — теперь кликабельный и редактируемый */
+    /* Маршрут — кликабельный и редактируемый */
     .route {
         display: flex;
         justify-content: space-between;
@@ -166,7 +166,7 @@
     #qrCode {
         width: 100%;
         max-width: 360px;
-        height: 140px;
+        height: 126px; /* было 140px, уменьшено на 10% */
         display: flex;
         align-items: center;
         justify-content: center;
@@ -178,12 +178,12 @@
         transform-style: preserve-3d;
         backface-visibility: visible;
         width: 100% !important;
-        height: 140px !important;
+        height: 126px !important; /* было 140px */
         display: block;
         image-rendering: pixelated;
     }
 
-    /* Вращение: 180° туда и обратно, медленнее и плавнее */
+    /* Вращение: 180° туда и обратно */
     @keyframes spinHorizontal {
         0%   { transform: rotateY(0deg); }
         50%  { transform: rotateY(180deg); }
@@ -437,24 +437,34 @@
         const target = document.getElementById('qrCode');
         target.innerHTML = '';
         const canvas = document.createElement('canvas');
-        const width = 360, height = 140, dpr = window.devicePixelRatio || 1;
+
+        const width = 360;
+        const displayHeight = 126;           // уменьшено на 10% (было 140)
+        const logicalHeight = 140;           // исходная система координат
+        const sy = displayHeight / logicalHeight;
+        const dpr = window.devicePixelRatio || 1;
+
         canvas.width = width * dpr;
-        canvas.height = height * dpr;
+        canvas.height = displayHeight * dpr;
         canvas.style.width = '100%';
-        canvas.style.height = '140px';
+        canvas.style.height = displayHeight + 'px';
         target.appendChild(canvas);
 
         const ctx = canvas.getContext('2d');
-        ctx.scale(dpr, dpr);
+        // Вертикальное сжатие исходных координат до новой высоты.
+        ctx.setTransform(dpr, 0, 0, dpr * sy, 0, 0);
+
         ctx.fillStyle = '#fff';
-        ctx.fillRect(0, 0, width, height);
+        ctx.fillRect(0, 0, width, logicalHeight);
         ctx.fillStyle = '#111';
 
+        // Боковые направляющие (исходные координаты 140 высоты).
         ctx.fillRect(5, 4, 11, 132);
         [24, 30, 37].forEach(x => ctx.fillRect(x, 4, 2, 132));
         ctx.fillRect(344, 4, 11, 132);
         [323, 330, 336].forEach(x => ctx.fillRect(x, 4, 2, 132));
 
+        // Прямоугольная матрица.
         let seed = 2166136261;
         for (const ch of token) {
             seed ^= ch.charCodeAt(0);
@@ -484,6 +494,7 @@
             }
         }
 
+        // Узкие вертикальные разделители.
         [101, 154, 207, 260].forEach(x => ctx.fillRect(x, 3, 2, 134));
     }
 
@@ -575,7 +586,6 @@
 
     // ---------- PWA ----------
     (function setupPWA() {
-        // Иконки рисуем на canvas и превращаем в data URL
         function makeIcon(size) {
             const c = document.createElement('canvas');
             c.width = c.height = size;
@@ -619,7 +629,6 @@
             document.head.appendChild(link);
         } catch (e) { /* игнорируем */ }
 
-        // Иконка для iOS
         try {
             const appleIcon = document.createElement('link');
             appleIcon.rel = 'apple-touch-icon';
@@ -627,7 +636,6 @@
             document.head.appendChild(appleIcon);
         } catch (e) { /* игнорируем */ }
 
-        // Кнопка установки (Android / Chrome)
         const installBtn = document.getElementById('installBtn');
         const iosHint = document.getElementById('iosHint');
         let deferredPrompt = null;
@@ -656,14 +664,12 @@
             iosHint.style.display = 'none';
         });
 
-        // Подсказка для iOS Safari
         const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
         const isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
         if (isIOS && isSafari && !isStandalone) {
             iosHint.style.display = 'block';
         }
 
-        // Попытка зарегистрировать service worker (если рядом есть sw.js)
         if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
             navigator.serviceWorker.register('sw.js').catch(() => {});
         }

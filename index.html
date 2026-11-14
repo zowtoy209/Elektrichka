@@ -174,14 +174,15 @@
         image-rendering: pixelated;
     }
 
-    /* Горизонтальное вращение кода */
+    /* Горизонтальное вращение кода: 180° в одну сторону и обратно */
     @keyframes spinHorizontal {
-        from { transform: rotateY(0deg); }
-        to   { transform: rotateY(360deg); }
+        0%   { transform: rotateY(0deg); }
+        50%  { transform: rotateY(180deg); }
+        100% { transform: rotateY(0deg); }
     }
 
     .code-container.spinning canvas {
-        animation: spinHorizontal 0.6s ease-in-out;
+        animation: spinHorizontal 0.9s ease-in-out;
     }
 
     /* Описание */
@@ -478,7 +479,8 @@
     // Нажатие на заголовок: вращение + новый код.
     titleBtn.addEventListener('click', () => {
         spinCode();
-        setTimeout(generateAndSaveNewCode, 300);
+        // Анимация длится 0.9 с, середина (180°) наступает на 450 мс.
+        setTimeout(generateAndSaveNewCode, 450);
     });
 
     // Нажатие непосредственно на код запускает горизонтальное вращение.

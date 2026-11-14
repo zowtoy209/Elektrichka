@@ -3,14 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Билет на электричку</title>
+<title>Билет</title>
 <style>
     :root {
-        --bg-dark: #2c2c2e;
-        --bg-light: #f2f2f7;
+        --bg-app: #f2f2f7;
+        --bg-header: #2c2c2e;
         --text-main: #000000;
         --text-muted: #8e8e93;
         --accent: #ffcc00;
+        --badge: #ff3b30;
     }
     
     * {
@@ -19,183 +20,180 @@
         padding: 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         -webkit-tap-highlight-color: transparent;
+        user-select: none;
     }
 
     body {
-        background-color: #000;
+        background-color: #000; /* Темный фон за пределами приложения */
         display: flex;
         justify-content: center;
-        align-items: center;
         min-height: 100vh;
-        overflow: hidden;
     }
 
-    .phone {
+    /* Контейнер приложения */
+    .app {
         width: 100%;
-        max-width: 400px;
-        height: 100vh;
-        max-height: 850px;
-        background-color: var(--bg-light);
-        position: relative;
+        max-width: 500px;
+        min-height: 100vh;
+        background-color: var(--bg-app);
         display: flex;
         flex-direction: column;
-        overflow: hidden;
+        position: relative;
+        overflow-x: hidden;
     }
 
-    .status-bar {
-        background-color: var(--bg-dark);
-        color: #fff;
-        display: flex;
-        justify-content: space-between;
-        padding: 12px 20px 8px;
-        font-size: 14px;
-        font-weight: 600;
-        z-index: 10;
-    }
-
+    /* Шапка (темно-серая) */
     .header {
-        background-color: var(--bg-dark);
+        background-color: var(--bg-header);
         color: #fff;
         display: flex;
         align-items: center;
-        padding: 10px 16px 16px;
-        font-size: 18px;
-        font-weight: 600;
+        justify-content: space-between;
+        padding: 14px 16px;
+        position: sticky;
+        top: 0;
         z-index: 10;
     }
     
-    .header .back-btn {
-        font-size: 24px;
+    .header .back {
+        font-size: 28px;
+        line-height: 1;
         cursor: pointer;
-        margin-right: 16px;
-        font-weight: 400;
+        width: 30px;
+        font-weight: 300;
+        padding-bottom: 4px;
     }
     
     .header .title {
+        font-size: 17px;
+        font-weight: 600;
         flex: 1;
         text-align: center;
-        margin-right: 24px;
         cursor: pointer;
-        user-select: none;
         transition: opacity 0.2s;
+        margin-right: 30px; /* Компенсация левого отступа для центрирования */
     }
 
     .header .title:active {
-        opacity: 0.6;
+        opacity: 0.5;
     }
 
-    .ticket-body {
-        background-color: var(--bg-light);
+    /* Основной контент билета */
+    .content {
+        padding: 24px 20px;
         flex: 1;
         display: flex;
         flex-direction: column;
-        padding: 24px 20px;
-        overflow-y: auto;
-        box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
     }
 
-    .route-info {
+    /* Название маршрута */
+    .route {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
+        align-items: flex-start;
+        margin-bottom: 24px;
     }
 
-    .route-title {
-        font-size: 20px;
+    .route h1 {
+        font-size: 22px;
         font-weight: 400;
+        line-height: 1.3;
         color: var(--text-main);
+        padding-right: 10px;
     }
 
     .train-icon {
-        width: 32px;
-        height: 32px;
+        width: 40px;
+        height: 40px;
         background: #000;
         border-radius: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
-        color: #fff;
+        flex-shrink: 0;
     }
 
     .train-icon svg {
-        width: 18px;
-        height: 18px;
-        fill: currentColor;
+        width: 20px;
+        height: 20px;
+        fill: #fff;
     }
 
+    /* Дата */
     .date-block {
-        margin-bottom: 24px;
+        margin-bottom: 20px;
         cursor: pointer;
-        display: inline-block;
     }
 
     .date-main {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 600;
         color: var(--text-main);
         margin-bottom: 4px;
     }
 
     .date-sub {
-        font-size: 15px;
+        font-size: 16px;
         color: var(--text-muted);
     }
 
-    .barcode-container {
+    /* Контейнер для QR/Штрихкода */
+    .code-container {
         width: 100%;
-        height: 140px;
-        background: #fff;
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 15px;
         margin-bottom: 24px;
         display: flex;
         justify-content: center;
         align-items: center;
         perspective: 1000px;
         cursor: pointer;
-        padding: 10px;
-        border-radius: 4px;
-        box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
     }
 
-    canvas#barcodeCanvas {
+    canvas {
         width: 100%;
-        height: 100%;
-        max-width: 320px;
+        max-width: 340px;
+        height: 140px;
+        display: block;
         transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    .barcode-container.flipped canvas#barcodeCanvas {
+    .code-container.flipped canvas {
         transform: rotateY(90deg);
     }
 
-    .ticket-details {
-        font-size: 16px;
-        color: var(--text-main);
+    /* Описание */
+    .details {
+        font-size: 17px;
         line-height: 1.4;
-        margin-bottom: auto;
+        color: var(--text-main);
+        margin-bottom: auto; /* Прижимает футер к низу */
     }
-    
-    .ticket-details p {
+
+    .details p {
         margin-bottom: 4px;
     }
 
-    .ticket-footer {
-        display: flex;
-        justify-content: space-between;
-        font-size: 15px;
-        color: var(--text-main);
-        padding-top: 40px;
+    /* Футер (цена и номер) */
+    .footer {
+        margin-top: 30px;
         padding-bottom: 16px;
         border-bottom: 1px solid rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        font-size: 16px;
+        color: var(--text-main);
     }
 
+    /* Аккордеон */
     .accordion {
+        padding: 16px 0 24px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 16px 0;
         font-size: 15px;
-        font-weight: 500;
+        font-weight: 400;
         color: var(--text-main);
         cursor: pointer;
     }
@@ -208,37 +206,38 @@
         stroke-width: 2;
     }
 
+    /* Нижнее меню (темно-серое) */
     .bottom-nav {
-        background-color: var(--bg-dark);
+        background-color: var(--bg-header);
         display: flex;
         justify-content: space-around;
         align-items: center;
-        padding: 12px 10px calc(12px + env(safe-area-inset-bottom, 0px));
+        padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+        position: sticky;
+        bottom: 0;
         z-index: 10;
     }
 
-    .nav-item {
+    .nav-btn {
         display: flex;
         justify-content: center;
         align-items: center;
         width: 48px;
         height: 48px;
-        cursor: pointer;
         position: relative;
     }
 
-    .nav-item svg {
-        width: 24px;
-        height: 24px;
+    .nav-btn svg {
+        width: 26px;
+        height: 26px;
         fill: none;
         stroke: #8e8e93;
         stroke-width: 2;
         stroke-linecap: round;
         stroke-linejoin: round;
-        transition: stroke 0.2s;
     }
 
-    .nav-item.active svg {
+    .nav-btn.active svg {
         stroke: var(--accent);
     }
 
@@ -246,12 +245,12 @@
         position: absolute;
         top: 4px;
         right: 4px;
-        background-color: #ff3b30;
+        background-color: var(--badge);
         color: white;
         font-size: 11px;
-        font-weight: bold;
-        width: 16px;
-        height: 16px;
+        font-weight: 600;
+        width: 18px;
+        height: 18px;
         border-radius: 50%;
         display: flex;
         justify-content: center;
@@ -261,14 +260,15 @@
     /* Всплывающая подсказка */
     .hint {
         position: absolute;
-        top: 50px;
+        top: 70px;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(0,0,0,0.7);
+        background: rgba(0,0,0,0.75);
         color: #fff;
-        padding: 8px 16px;
+        padding: 8px 14px;
         border-radius: 20px;
         font-size: 13px;
+        white-space: nowrap;
         pointer-events: none;
         opacity: 0;
         transition: opacity 0.3s;
@@ -282,28 +282,21 @@
 </head>
 <body>
 
-<div class="phone">
-    <div class="status-bar">
-        <span>18:14 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></span>
-        <span style="display:flex; gap:6px; align-items:center;">
-            <svg width="16" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M2 22h20V2L2 22z"/></svg>
-            LTE
-            <div style="border: 1px solid #fff; border-radius: 4px; padding: 1px 3px; font-size: 10px; display:flex; align-items:center;">88</div>
-        </span>
-    </div>
-
+<div class="app">
+    <!-- Шапка -->
     <div class="header">
-        <div class="back-btn">‹</div>
-        <!-- Нажатие на заголовок обновляет штрихкод -->
-        <div class="title" id="btnUpdateTitle">Билет</div>
+        <div class="back">‹</div>
+        <!-- Нажатие на "Билет" генерирует новый код -->
+        <div class="title" id="btnUpdateCode">Билет</div>
     </div>
-    
-    <div class="hint" id="hintText">Нажми на "Билет" чтобы обновить код</div>
 
-    <div class="ticket-body">
+    <div class="hint" id="hint">Нажми на "Билет" чтобы обновить код</div>
+
+    <!-- Основной контент -->
+    <div class="content">
         
-        <div class="route-info">
-            <div class="route-title">Старая Деревня - Сестрорецк</div>
+        <div class="route">
+            <h1>Старая Деревня -<br>Сестрорецк</h1>
             <div class="train-icon">
                 <svg viewBox="0 0 24 24"><path d="M12 2c-4 0-8 .5-8 4v9.5C4 17.43 5.57 19 7.5 19L6 20.5v.5h12v-.5L16.5 19c1.93 0 3.5-1.57 3.5-3.5V6c0-3.5-4-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm3.5-6H6V6h5v5zm5.5 6c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6h-5V6h5v5z"/></svg>
             </div>
@@ -314,16 +307,16 @@
             <div class="date-sub" id="dateSub">...</div>
         </div>
 
-        <div class="barcode-container" id="barcodeContainer">
-            <canvas id="barcodeCanvas" width="300" height="120"></canvas>
+        <div class="code-container" id="codeContainer">
+            <canvas id="barcodeCanvas"></canvas>
         </div>
 
-        <div class="ticket-details">
+        <div class="details">
             <p>Полный, в одну сторону</p>
             <p>Билет на электричку стандарт (обычный пригородный поезд)</p>
         </div>
 
-        <div class="ticket-footer">
+        <div class="footer">
             <div>65 ₽</div>
             <div id="ticketNumber">Билет № ...</div>
         </div>
@@ -335,48 +328,47 @@
 
     </div>
 
+    <!-- Нижнее меню -->
     <div class="bottom-nav">
-        <div class="nav-item">
+        <div class="nav-btn">
             <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
         </div>
-        <div class="nav-item">
+        <div class="nav-btn">
             <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
         </div>
-        <div class="nav-item active">
+        <div class="nav-btn active">
             <svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 10h16M8 6v12"/></svg>
             <div class="badge">2</div>
         </div>
-        <div class="nav-item">
+        <div class="nav-btn">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
-        <div class="nav-item">
+        <div class="nav-btn">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </div>
     </div>
 </div>
 
 <script>
-    // Ключи для хранения в памяти браузера
     const LS_DATE_MAIN = 'ticket_date_main';
     const LS_DATE_SUB = 'ticket_date_sub';
     const LS_NUMBER = 'ticket_number';
     const LS_BARCODE = 'ticket_barcode_data';
 
-    const barcodeContainer = document.getElementById('barcodeContainer');
-    const titleBtn = document.getElementById('btnUpdateTitle');
+    const codeContainer = document.getElementById('codeContainer');
+    const titleBtn = document.getElementById('btnUpdateCode');
 
-    // Инициализация при загрузке страницы
+    // --- ЛОГИКА СОХРАНЕНИЯ И ЗАГРУЗКИ ---
     function init() {
-        // 1. Проверяем Номер билета
+        // Номер билета
         let savedNumber = localStorage.getItem(LS_NUMBER);
         if (!savedNumber) {
-            // Если нет, генерируем новый
             savedNumber = 'Билет № ' + Math.floor(Math.random() * 9000000000000 + 1000000000000);
             localStorage.setItem(LS_NUMBER, savedNumber);
         }
         document.getElementById('ticketNumber').textContent = savedNumber;
 
-        // 2. Проверяем Дату
+        // Дата
         let savedDateMain = localStorage.getItem(LS_DATE_MAIN);
         let savedDateSub = localStorage.getItem(LS_DATE_SUB);
         if (!savedDateMain) {
@@ -388,100 +380,129 @@
         document.getElementById('dateMain').textContent = savedDateMain;
         document.getElementById('dateSub').textContent = savedDateSub;
 
-        // 3. Проверяем Штрихкод
+        // Штрихкод
         let savedBarcode = localStorage.getItem(LS_BARCODE);
         if (!savedBarcode) {
-            generateAndSaveNewBarcode();
+            generateAndSaveNewCode();
         } else {
             renderBarcode(JSON.parse(savedBarcode));
         }
     }
 
-    // Функция генерации и сохранения нового штрихкода
-    function generateAndSaveNewBarcode() {
-        let newData = generateBarcodeData();
+    // --- ГЕНЕРАЦИЯ 2D КОДА (КАК НА ФОТО) ---
+    function generateAndSaveNewCode() {
+        let newData = generateRandomCodeData();
         localStorage.setItem(LS_BARCODE, JSON.stringify(newData));
         renderBarcode(newData);
     }
 
-    // Генерация структуры штрихкода (похоже на DataMatrix/PDF417)
-    function generateBarcodeData() {
-        let cols = [];
-        // Создаем 7-8 блоков с разной шириной
-        let numCols = Math.floor(Math.random() * 2) + 7; 
+    function generateRandomCodeData() {
+        // Генерируем набор колонок
+        let columns = [];
+        // В реальном коде их около 15-20
+        let numCols = Math.floor(Math.random() * 5) + 15; 
         
-        for (let c = 0; c < numCols; c++) {
+        for (let i = 0; i < numCols; i++) {
             let col = {
-                w: Math.floor(Math.random() * 15) + 15, // случайная ширина блока
-                noise: [] // координаты белых полос внутри блока
+                w: Math.floor(Math.random() * 8) + 8, // Ширина колонки (8-16px)
+                blocks: [] // Черные блоки
             };
-            // Генерируем случайные "вырезы" (белые линии), чтобы создать вид матрицы
-            for (let y = 0; y < 30; y++) {
-                if (Math.random() > 0.65) {
-                    col.noise.push(y);
-                }
+            
+            let y = 0;
+            // Заполняем колонку блоками разной высоты
+            while (y < 100) {
+                let blockH = Math.floor(Math.random() * 15) + 5; // Высота блока
+                let gap = Math.floor(Math.random() * 8); // Белый отступ
+                
+                col.blocks.push({ y: y, h: blockH });
+                y += blockH + gap;
             }
-            cols.push(col);
+            columns.push(col);
         }
-        return cols;
+        return columns;
     }
 
-    // Отрисовка штрихкода на холсте
-    function renderBarcode(cols) {
+    function renderBarcode(columns) {
         const canvas = document.getElementById('barcodeCanvas');
         const ctx = canvas.getContext('2d');
-        const w = canvas.width;
-        const h = canvas.height;
+        
+        // Настраиваем четкость (ретина)
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        
+        // Если канвас еще не отрисован (0 ширина), ставим дефолт
+        const width = rect.width > 0 ? rect.width : 300;
+        const height = rect.height > 0 ? rect.height : 140;
+
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.scale(dpr, dpr);
 
         // Белый фон
         ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, w, h);
+        ctx.fillRect(0, 0, width, height);
 
-        // Черный цвет для полос
         ctx.fillStyle = '#000000';
 
-        // Сплошные линии по бокам (как на реальных билетах)
-        ctx.fillRect(10, 0, 4, h);
-        ctx.fillRect(w - 14, 0, 4, h);
+        // 1. Рисуем сплошные линии по краям
+        let leftLineW = 4;
+        let rightLineW = 4;
+        
+        ctx.fillRect(5, 0, leftLineW, height);
+        ctx.fillRect(width - 9, 0, rightLineW, height);
 
-        let x = 20;
-        cols.forEach(col => {
-            // Рисуем основной черный столбец
-            ctx.fillRect(x, 0, col.w, h);
+        // 2. Рисуем центральную матрицу
+        let startX = 15;
+        let endX = width - 15;
+        let availableW = endX - startX;
+        
+        // Вычисляем общую ширину сгенерированных колонок
+        let totalW = 0;
+        columns.forEach(c => totalW += c.w);
+        
+        // Масштабируем под доступную ширину
+        let scaleX = availableW / totalW;
+        
+        let currentX = startX;
+        let yPad = height * 0.05; // Небольшой отступ сверху и снизу
+        let usableH = height - (yPad * 2);
+
+        columns.forEach(col => {
+            let colW = col.w * scaleX;
             
-            // Рисуем белые линии внутри него для текстуры
-            ctx.fillStyle = '#ffffff';
-            col.noise.forEach(y => {
-                let lineH = Math.floor(Math.random() * 3) + 1; // Высота выреза
-                let yPos = y * (h / 30);
-                ctx.fillRect(x, yPos, col.w, lineH);
+            // Рисуем черные блоки внутри колонки
+            col.blocks.forEach(b => {
+                let blockY = yPad + (b.y / 100) * usableH;
+                let blockH = (b.h / 100) * usableH;
+                
+                // Чтобы не вылезало за границы
+                if (blockY + blockH > yPad + usableH) {
+                    blockH = (yPad + usableH) - blockY;
+                }
+                
+                ctx.fillRect(currentX, blockY, colW, blockH);
             });
             
-            // Возвращаем черный цвет
-            ctx.fillStyle = '#000000';
-            x += col.w + 6; // Отступ между столбцами
+            currentX += colW;
         });
     }
 
     // --- СОБЫТИЯ ---
 
-    // 1. Нажатие на "Билет" СВЕРХУ (Меняет код)
+    // 1. Клик по "Билет" - смена кода
     titleBtn.addEventListener('click', () => {
-        // Показываем анимацию переворота
-        barcodeContainer.classList.add('flipped');
-        
-        // Ждем полсекунды, генерируем новый, и возвращаем обратно
+        codeContainer.classList.add('flipped');
         setTimeout(() => {
-            generateAndSaveNewBarcode();
-            barcodeContainer.classList.remove('flipped');
+            generateAndSaveNewCode();
+            codeContainer.classList.remove('flipped');
         }, 400); 
     });
 
-    // 2. Нажатие на САМ штрихкод (Просто вертит, не меняет)
-    barcodeContainer.addEventListener('click', () => {
-        barcodeContainer.classList.add('flipped');
+    // 2. Клик по коду - просто переворот
+    codeContainer.addEventListener('click', () => {
+        codeContainer.classList.add('flipped');
         setTimeout(() => {
-            barcodeContainer.classList.remove('flipped');
+            codeContainer.classList.remove('flipped');
         }, 400); 
     });
 
@@ -494,9 +515,9 @@
             document.getElementById('dateMain').textContent = newDate;
             localStorage.setItem(LS_DATE_MAIN, newDate);
             
-            // Умный расчет подписи "Действует до..."
+            // Расчет "Действует до..."
             let parts = newDate.split(' ');
-            let subDate = `Действует до 01:00 15 ноября`; // Дефолт
+            let subDate = `Действует до 01:00 15 ноября`;
             
             if(parts.length === 2) {
                 let day = parseInt(parts[0]);
@@ -510,15 +531,24 @@
         }
     }
 
-    // Подсказка при первом заходе
+    // Показ подсказки при первом заходе
     setTimeout(() => {
-        const hint = document.getElementById('hintText');
-        hint.classList.add('show');
-        setTimeout(() => hint.classList.remove('show'), 3000);
+        const hint = document.getElementById('hint');
+        if (hint) {
+            hint.classList.add('show');
+            setTimeout(() => hint.classList.remove('show'), 3000);
+        }
     }, 500);
 
     // Запуск
     init();
+
+    // Обновление размеров холста при повороте экрана
+    window.addEventListener('resize', () => {
+        let savedBarcode = localStorage.getItem(LS_BARCODE);
+        if(savedBarcode) renderBarcode(JSON.parse(savedBarcode));
+    });
+
 </script>
 </body>
 </html>

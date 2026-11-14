@@ -24,13 +24,12 @@
     }
 
     body {
-        background-color: #000; /* Темный фон за пределами приложения */
+        background-color: #000;
         display: flex;
         justify-content: center;
         min-height: 100vh;
     }
 
-    /* Контейнер приложения */
     .app {
         width: 100%;
         max-width: 500px;
@@ -42,7 +41,7 @@
         overflow-x: hidden;
     }
 
-    /* Шапка (темно-серая) */
+    /* Шапка */
     .header {
         background-color: var(--bg-header);
         color: #fff;
@@ -71,14 +70,14 @@
         text-align: center;
         cursor: pointer;
         transition: opacity 0.2s;
-        margin-right: 30px; /* Компенсация левого отступа для центрирования */
+        margin-right: 30px; /* Центрирование */
     }
 
     .header .title:active {
         opacity: 0.5;
     }
 
-    /* Основной контент билета */
+    /* Контент */
     .content {
         padding: 24px 20px;
         flex: 1;
@@ -86,16 +85,16 @@
         flex-direction: column;
     }
 
-    /* Название маршрута */
+    /* Маршрут */
     .route {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
     }
 
     .route h1 {
-        font-size: 22px;
+        font-size: 21px;
         font-weight: 400;
         line-height: 1.3;
         color: var(--text-main);
@@ -103,25 +102,26 @@
     }
 
     .train-icon {
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
         background: #000;
         border-radius: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
         flex-shrink: 0;
+        margin-top: 2px;
     }
 
     .train-icon svg {
-        width: 20px;
-        height: 20px;
+        width: 18px;
+        height: 18px;
         fill: #fff;
     }
 
     /* Дата */
     .date-block {
-        margin-bottom: 20px;
+        margin-bottom: 24px;
         cursor: pointer;
     }
 
@@ -129,7 +129,7 @@
         font-size: 22px;
         font-weight: 600;
         color: var(--text-main);
-        margin-bottom: 4px;
+        margin-bottom: 2px;
     }
 
     .date-sub {
@@ -137,24 +137,24 @@
         color: var(--text-muted);
     }
 
-    /* Контейнер для QR/Штрихкода */
+    /* Контейнер для кода */
     .code-container {
         width: 100%;
         background: #ffffff;
-        border-radius: 8px;
-        padding: 15px;
+        border-radius: 6px;
+        padding: 10px 15px;
         margin-bottom: 24px;
         display: flex;
         justify-content: center;
         align-items: center;
         perspective: 1000px;
         cursor: pointer;
+        height: 140px;
     }
 
     canvas {
         width: 100%;
-        max-width: 340px;
-        height: 140px;
+        height: 100%;
         display: block;
         transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
@@ -165,24 +165,24 @@
 
     /* Описание */
     .details {
-        font-size: 17px;
+        font-size: 16px;
         line-height: 1.4;
         color: var(--text-main);
-        margin-bottom: auto; /* Прижимает футер к низу */
+        margin-bottom: auto;
     }
 
     .details p {
         margin-bottom: 4px;
     }
 
-    /* Футер (цена и номер) */
+    /* Футер */
     .footer {
         margin-top: 30px;
         padding-bottom: 16px;
         border-bottom: 1px solid rgba(0,0,0,0.1);
         display: flex;
         justify-content: space-between;
-        font-size: 16px;
+        font-size: 15px;
         color: var(--text-main);
     }
 
@@ -206,7 +206,7 @@
         stroke-width: 2;
     }
 
-    /* Нижнее меню (темно-серое) */
+    /* Нижнее меню */
     .bottom-nav {
         background-color: var(--bg-header);
         display: flex;
@@ -228,8 +228,8 @@
     }
 
     .nav-btn svg {
-        width: 26px;
-        height: 26px;
+        width: 24px;
+        height: 24px;
         fill: none;
         stroke: #8e8e93;
         stroke-width: 2;
@@ -243,27 +243,27 @@
 
     .badge {
         position: absolute;
-        top: 4px;
+        top: 6px;
         right: 4px;
         background-color: var(--badge);
         color: white;
         font-size: 11px;
         font-weight: 600;
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
     }
 
-    /* Всплывающая подсказка */
+    /* Подсказка */
     .hint {
         position: absolute;
         top: 70px;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(0,0,0,0.75);
+        background: rgba(0,0,0,0.8);
         color: #fff;
         padding: 8px 14px;
         border-radius: 20px;
@@ -283,20 +283,17 @@
 <body>
 
 <div class="app">
-    <!-- Шапка -->
     <div class="header">
         <div class="back">‹</div>
-        <!-- Нажатие на "Билет" генерирует новый код -->
         <div class="title" id="btnUpdateCode">Билет</div>
     </div>
 
-    <div class="hint" id="hint">Нажми на "Билет" чтобы обновить код</div>
+    <div class="hint" id="hint">Нажми на "Билет" чтобы обновить штрихкод</div>
 
-    <!-- Основной контент -->
     <div class="content">
         
         <div class="route">
-            <h1>Старая Деревня -<br>Сестрорецк</h1>
+            <h1>Старая Деревня - Сестрорецк</h1>
             <div class="train-icon">
                 <svg viewBox="0 0 24 24"><path d="M12 2c-4 0-8 .5-8 4v9.5C4 17.43 5.57 19 7.5 19L6 20.5v.5h12v-.5L16.5 19c1.93 0 3.5-1.57 3.5-3.5V6c0-3.5-4-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm3.5-6H6V6h5v5zm5.5 6c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6h-5V6h5v5z"/></svg>
             </div>
@@ -328,7 +325,6 @@
 
     </div>
 
-    <!-- Нижнее меню -->
     <div class="bottom-nav">
         <div class="nav-btn">
             <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
@@ -353,14 +349,94 @@
     const LS_DATE_MAIN = 'ticket_date_main';
     const LS_DATE_SUB = 'ticket_date_sub';
     const LS_NUMBER = 'ticket_number';
-    const LS_BARCODE = 'ticket_barcode_data';
-
+    const LS_PATTERN = 'ticket_pattern_data';
+    
     const codeContainer = document.getElementById('codeContainer');
     const titleBtn = document.getElementById('btnUpdateCode');
 
-    // --- ЛОГИКА СОХРАНЕНИЯ И ЗАГРУЗКИ ---
+    // --- ГЕНЕРАЦИЯ УЗОРА (ИМИТАЦИЯ PDF417) ---
+    function generatePattern() {
+        // Создаем 7 вертикальных блоков
+        let columns = [];
+        const numCols = 7;
+        
+        for (let i = 0; i < numCols; i++) {
+            let blocks = [];
+            let y = 0;
+            // Заполняем колонку блоками сверху вниз
+            while (y < 100) {
+                let blockH = Math.random() * 8 + 4; // Высота блока
+                let gap = Math.random() * 5;        // Отступ
+                blocks.push({ y: y, h: blockH });
+                y += blockH + gap;
+            }
+            columns.push(blocks);
+        }
+        return columns;
+    }
+
+    // --- ОТРИСОВКА ---
+    function renderBarcode(columns) {
+        const canvas = document.getElementById('barcodeCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Поддержка высокого разрешения (Retina)
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        const width = rect.width || 300;
+        const height = rect.height || 140;
+
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.scale(dpr, dpr);
+
+        // Белый фон
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+
+        // Черный цвет
+        ctx.fillStyle = '#000000';
+
+        // 1. Рисуем сплошные линии по краям (как на билетах)
+        let borderW = 3;
+        ctx.fillRect(5, 0, borderW, height);
+        ctx.fillRect(10, 0, 1, height); // Тонкая линия рядом
+        
+        ctx.fillRect(width - 8, 0, borderW, height);
+        ctx.fillRect(width - 11, 0, 1, height);
+
+        // 2. Рисуем матрицу по центру
+        let startX = 18;
+        let endX = width - 18;
+        let availableW = endX - startX;
+        
+        // Равномерно распределяем колонки
+        let colW = availableW / columns.length;
+        let yPad = 4; // Отступ сверху и снизу
+        let usableH = height - (yPad * 2);
+
+        columns.forEach((colBlocks, index) => {
+            let xPos = startX + (index * colW);
+            
+            colBlocks.forEach(b => {
+                let blockY = yPad + (b.y / 100) * usableH;
+                let blockH = (b.h / 100) * usableH;
+                
+                // Небольшой зазор между колонками (1px), чтобы было похоже на полосы
+                let drawW = colW - 1;
+                
+                if (blockY + blockH > yPad + usableH) {
+                    blockH = (yPad + usableH) - blockY;
+                }
+                
+                ctx.fillRect(xPos, blockY, drawW, blockH);
+            });
+        });
+    }
+
+    // --- ЛОГИКА СОХРАНЕНИЯ ---
     function init() {
-        // Номер билета
+        // 1. Номер
         let savedNumber = localStorage.getItem(LS_NUMBER);
         if (!savedNumber) {
             savedNumber = 'Билет № ' + Math.floor(Math.random() * 9000000000000 + 1000000000000);
@@ -368,7 +444,7 @@
         }
         document.getElementById('ticketNumber').textContent = savedNumber;
 
-        // Дата
+        // 2. Дата
         let savedDateMain = localStorage.getItem(LS_DATE_MAIN);
         let savedDateSub = localStorage.getItem(LS_DATE_SUB);
         if (!savedDateMain) {
@@ -380,125 +456,39 @@
         document.getElementById('dateMain').textContent = savedDateMain;
         document.getElementById('dateSub').textContent = savedDateSub;
 
-        // Штрихкод
-        let savedBarcode = localStorage.getItem(LS_BARCODE);
-        if (!savedBarcode) {
-            generateAndSaveNewCode();
+        // 3. Штрихкод (паттерн)
+        let savedPattern = localStorage.getItem(LS_PATTERN);
+        if (!savedPattern) {
+            let newPattern = generatePattern();
+            localStorage.setItem(LS_PATTERN, JSON.stringify(newPattern));
+            renderBarcode(newPattern);
         } else {
-            renderBarcode(JSON.parse(savedBarcode));
+            renderBarcode(JSON.parse(savedPattern));
         }
-    }
-
-    // --- ГЕНЕРАЦИЯ 2D КОДА (КАК НА ФОТО) ---
-    function generateAndSaveNewCode() {
-        let newData = generateRandomCodeData();
-        localStorage.setItem(LS_BARCODE, JSON.stringify(newData));
-        renderBarcode(newData);
-    }
-
-    function generateRandomCodeData() {
-        // Генерируем набор колонок
-        let columns = [];
-        // В реальном коде их около 15-20
-        let numCols = Math.floor(Math.random() * 5) + 15; 
-        
-        for (let i = 0; i < numCols; i++) {
-            let col = {
-                w: Math.floor(Math.random() * 8) + 8, // Ширина колонки (8-16px)
-                blocks: [] // Черные блоки
-            };
-            
-            let y = 0;
-            // Заполняем колонку блоками разной высоты
-            while (y < 100) {
-                let blockH = Math.floor(Math.random() * 15) + 5; // Высота блока
-                let gap = Math.floor(Math.random() * 8); // Белый отступ
-                
-                col.blocks.push({ y: y, h: blockH });
-                y += blockH + gap;
-            }
-            columns.push(col);
-        }
-        return columns;
-    }
-
-    function renderBarcode(columns) {
-        const canvas = document.getElementById('barcodeCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Настраиваем четкость (ретина)
-        const dpr = window.devicePixelRatio || 1;
-        const rect = canvas.getBoundingClientRect();
-        
-        // Если канвас еще не отрисован (0 ширина), ставим дефолт
-        const width = rect.width > 0 ? rect.width : 300;
-        const height = rect.height > 0 ? rect.height : 140;
-
-        canvas.width = width * dpr;
-        canvas.height = height * dpr;
-        ctx.scale(dpr, dpr);
-
-        // Белый фон
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, width, height);
-
-        ctx.fillStyle = '#000000';
-
-        // 1. Рисуем сплошные линии по краям
-        let leftLineW = 4;
-        let rightLineW = 4;
-        
-        ctx.fillRect(5, 0, leftLineW, height);
-        ctx.fillRect(width - 9, 0, rightLineW, height);
-
-        // 2. Рисуем центральную матрицу
-        let startX = 15;
-        let endX = width - 15;
-        let availableW = endX - startX;
-        
-        // Вычисляем общую ширину сгенерированных колонок
-        let totalW = 0;
-        columns.forEach(c => totalW += c.w);
-        
-        // Масштабируем под доступную ширину
-        let scaleX = availableW / totalW;
-        
-        let currentX = startX;
-        let yPad = height * 0.05; // Небольшой отступ сверху и снизу
-        let usableH = height - (yPad * 2);
-
-        columns.forEach(col => {
-            let colW = col.w * scaleX;
-            
-            // Рисуем черные блоки внутри колонки
-            col.blocks.forEach(b => {
-                let blockY = yPad + (b.y / 100) * usableH;
-                let blockH = (b.h / 100) * usableH;
-                
-                // Чтобы не вылезало за границы
-                if (blockY + blockH > yPad + usableH) {
-                    blockH = (yPad + usableH) - blockY;
-                }
-                
-                ctx.fillRect(currentX, blockY, colW, blockH);
-            });
-            
-            currentX += colW;
-        });
     }
 
     // --- СОБЫТИЯ ---
 
-    // 1. Клик по "Билет" - смена кода
+    // Клик на "Билет" (Смена кода)
     titleBtn.addEventListener('click', () => {
         codeContainer.classList.add('flipped');
+        
         setTimeout(() => {
-            generateAndSaveNewCode();
+            // Новый номер
+            let newNumber = 'Билет № ' + Math.floor(Math.random() * 9000000000000 + 1000000000000);
+            localStorage.setItem(LS_NUMBER, newNumber);
+            document.getElementById('ticketNumber').textContent = newNumber;
+            
+            // Новый штрихкод
+            let newPattern = generatePattern();
+            localStorage.setItem(LS_PATTERN, JSON.stringify(newPattern));
+            renderBarcode(newPattern);
+            
             codeContainer.classList.remove('flipped');
         }, 400); 
     });
 
-    // 2. Клик по коду - просто переворот
+    // Клик на сам штрихкод (Просто анимация)
     codeContainer.addEventListener('click', () => {
         codeContainer.classList.add('flipped');
         setTimeout(() => {
@@ -506,7 +496,7 @@
         }, 400); 
     });
 
-    // 3. Изменение даты
+    // Смена даты
     function changeDate() {
         let currentVal = document.getElementById('dateMain').textContent;
         let newDate = prompt("Введите новую дату:", currentVal);
@@ -515,7 +505,6 @@
             document.getElementById('dateMain').textContent = newDate;
             localStorage.setItem(LS_DATE_MAIN, newDate);
             
-            // Расчет "Действует до..."
             let parts = newDate.split(' ');
             let subDate = `Действует до 01:00 15 ноября`;
             
@@ -531,7 +520,7 @@
         }
     }
 
-    // Показ подсказки при первом заходе
+    // Подсказка
     setTimeout(() => {
         const hint = document.getElementById('hint');
         if (hint) {
@@ -543,10 +532,10 @@
     // Запуск
     init();
 
-    // Обновление размеров холста при повороте экрана
+    // Перерисовка при изменении размера экрана
     window.addEventListener('resize', () => {
-        let savedBarcode = localStorage.getItem(LS_BARCODE);
-        if(savedBarcode) renderBarcode(JSON.parse(savedBarcode));
+        let savedPattern = localStorage.getItem(LS_PATTERN);
+        if(savedPattern) renderBarcode(JSON.parse(savedPattern));
     });
 
 </script>
